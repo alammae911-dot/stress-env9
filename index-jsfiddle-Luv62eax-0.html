@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Display biometric data and play relaxing sound</title>
+
+  <style>
+    .dashboard-container {
+max-width: 700px;
+width: 95%;
+display: flex;
+flex-direction: column;
+gap: 20px;
+}
+.info-section {
+background: white;
+padding: 20px;
+border-radius: 15px;
+box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+.description {
+font-size: 0.95rem;
+line-height: 1.6;
+color: #555;
+}
+.control-card {
+background: white;
+padding: 25px;
+border-radius: 15px;
+box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+.metric-title {
+font-size: 0.85rem;
+color: #777;
+margin-bottom: 5px;
+}
+  </style>
+
+  
+</head>
+<body>
+  <div class="dashboard-container">
+<!-- قسم الشرح والكتابات -->
+<div class="info-section">
+<h1>🧠 مشروع البيئة التكيفية الذكية</h1>
+<p class="description">
+مشروع يربط الحالة البيولوجية (النبض وتقلبات الـ HRV من الساعة الذكية) بالبيئة المحيطة.
+عند رصد التوتر، يقلل النظام الإضاءة الزرقاء ويشغل أصواتاً مهدئة تلقائياً لحمايتكِ من الإجهاد واضطرابات النوم.
+</p>
+</div>
+
+<!-- قسم لوحة التحكم والمؤشرات الحية -->
+<div class="control-card">
+<div id="statusBadge" class="status-badge">الحالة: استرخاء وطبيعي 🌿</div>
+
+<div class="metrics">
+<div class="metric-box">
+<div class="metric-title">نبض القلب (HR)</div>
+<div id="heartRate" class="metric-value">72 BPM</div>
+</div>
+<div class="metric-box">
+<div class="metric-title">مقياس التوتر (HRV)</div>
+<div id="hrvValue" class="metric-value">45 ms</div>
+</div>
+</div>
+
+<button class="btn" onclick="toggleStressSimulation()">تشغيل محاكاة التكيف البيئي ⚡</button>
+</div>
+</div>
+
+<audio id="relaxAudio" loop src="https://www.soundjay.com/nature/rain-01.mp3"></audio>
+
+  <script>
+    // دالة لتحديث بيانات النبض والتوتر فور استلامها من الساعة أو الجوال
+function updateBiometricData(heartRateVal, hrvVal) {
+const body = document.body;
+const statusBadge = document.getElementById('statusBadge');
+const heartRateElem = document.getElementById('heartRate');
+const hrvElem = document.getElementById('hrvValue');
+const audio = document.getElementById('relaxAudio');
+
+// تحديث الأرقام على الشاشة بناءً على القياس الحقيقي الوارد
+heartRateElem.innerText = heartRateVal + " BPM";
+hrvElem.innerText = hrvVal + " ms";
+
+// المنطق التكيفي: إذا انخفضت قيمة الـ HRV عن 25 أو ارتفع النبض عن 90، يعتبر الشخص في حالة توتر
+if (hrvVal < 25 || heartRateVal > 90) {
+body.classList.add('stress-mode');
+statusBadge.innerText = 'تنبيه: تم رصد إجهاد وتوتر للمستخدم!';
+audio.play().catch(e => console.log("تشغيل الصوت يتطلب تفاعل المستخدم"));
+} else {
+body.classList.remove('stress-mode');
+statusBadge.innerText = 'الحالة: استرخاء وطبيعي 🌿';
+audio.pause();
+audio.currentTime = 0;
+}
+}
+
+// محاكاة استقبال بيانات حية من شخص آخر (يمكن ربطها لاحقاً بـ API حقيقي)
+function simulateIncomingUser() {
+// تجربة قراءات متغيرة لشخص مستعار
+let randomHR = Math.floor(Math.random() * (110 - 65 + 1)) + 65;
+let randomHRV = Math.floor(Math.random() * (50 - 15 + 1)) + 15;
+updateBiometricData(randomHR, randomHRV);
+}// قراءة البيانات تلقائياً إذا أرسلها اختصار الآيفون مع الرابط
+window.onload = function() {
+const urlParams = new URLSearchParams(window.location.search);
+const hr = urlParams.get('hr');
+const hrv = urlParams.get('hrv');
+
+if (hr && hrv) {
+updateBiometricData(parseInt(hr), parseInt(hrv));
+}
+};
+  </script>
+</body>
+</html>
